@@ -2,10 +2,11 @@ package graphtool.graph;
 
 import edu.uci.ics.jung.graph.ObservableGraph;
 
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.util.HashMap;
 
 import com.google.common.base.Function;
@@ -159,9 +160,12 @@ public class GTGraph extends ObservableGraph<GTVertex, GTEdge> {
 	 * @throws IOException
 	 */
 	public void writeToFile(String pathname) throws IOException {
-		// Writer-Objekt auf Dateisystemebene
-		try (FileWriter w = new FileWriter(pathname)) {
-			// Writer-Objekt für GraphML-Dateiinhalte
+		try (FileOutputStream fos = new FileOutputStream(pathname)) {
+			// GraphMLWriter kann nur mit UTF-8 umgehen.
+			// Daher wird w nicht als FileWriter deklariert (der das Standard-Encoding
+			// der Plattform nutzt; in Windows also ISO-8859-15), sondern als
+			// OutputStreamWriter für UTF-8 auf einem FileOutputStream.
+			OutputStreamWriter w = new OutputStreamWriter(fos, "UTF-8"); //$NON-NLS-1$
 			GraphMLWriter<GTVertex, GTEdge> gmlWriter = new GraphMLWriter<>();
 
 			// Die Eigenschaften der Knoten und Kanten mit speichern.

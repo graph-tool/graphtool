@@ -118,9 +118,12 @@ public class GTVertex {
 			// Lies den Namen aus der übergebenen Wertetabelle.
 			// Schlägt dies fehl, verwende den Standardnamen für Knoten.
 			String name = nMeta.getProperty(NAME_KEY);
-			return name == null ?
-					new GTVertex(uuid, DEFAULT_NAME_PREFIX + (curNum++)) :
-						new GTVertex(uuid, name);
+			if (name == null) {
+				System.err.printf(Messages.getString(
+						"GTVertex.ErrorCannotReadName_fmt_s") + '\n', nMeta.getId()); //$NON-NLS-1$
+				return new GTVertex(uuid, DEFAULT_NAME_PREFIX + (curNum++));
+			}
+			return new GTVertex(uuid, name);
 		};
 	}
 
