@@ -16,7 +16,7 @@ import graphtool.res.Messages;
 import graphtool.utils.CodeExecutionHandler;
 
 /**
- * Komponente zur Anzeige des Ablaufs des Dijkstra-Algorithmus.
+ * Komponente zur Anzeige des Ablaufs des Such-Algorithmus.
  * <p>
  * In einer nicht editierbaren TextArea wird wahlweise der Quelltext
  * oder der Pseudocode des Algorithmus angezeigt. Bei der Durchführung

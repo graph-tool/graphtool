@@ -11,9 +11,13 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
+import edu.uci.ics.jung.graph.event.GraphEvent;
+import edu.uci.ics.jung.graph.event.GraphEventListener;
 import graphtool.algorithm.AStarAlgorithm;
 import graphtool.algorithm.DijkstraAlgorithm;
 import graphtool.algorithm.GTAbstractAlgorithm;
+import graphtool.graph.GTEdge;
+import graphtool.graph.GTVertex;
 import graphtool.gui.GTGraphControl;
 import graphtool.gui.GTGraphVisualization;
 import graphtool.res.Messages;
@@ -79,10 +83,12 @@ public class GTControlPanel extends GTAbstractPanel
 
 	/** Stopp-Button zum Abbrechen des Algorithmus */
 	private JButton stopButton = null;
-	/** Beschrftung des StopButtons */
+	/** Beschriftung des StopButtons */
 	private final String stopButtonText = Messages.getString("GTControlPanel.CancelRun"); //$NON-NLS-1$
 	/** Gibt an, ob die Ausführung abgebrochen werden soll. */
 	private boolean stop = false;
+	/** Meldung bei Abbruch des Durchlaufs aufgrund von Änderungen am Graphen */
+	private final String changeStopText = Messages.getString("GTControlPanel.GraphChangeStopMessage"); //$NON-NLS-1$
 	
 	/** Beschriftung des Buttons zur Ausführung des nächsten Schritts */
 	private final String stepButtonText = Messages.getString("GTControlPanel.TakeOneStep"); //$NON-NLS-1$
@@ -109,7 +115,23 @@ public class GTControlPanel extends GTAbstractPanel
 
 		// Grafische Komponenten erstellen
 		initialize();
-		
+
+        getGraphVis().getGraph().addGraphEventListener(new GraphEventListener<GTVertex, GTEdge>() {
+			/** 
+			 * Wird während des Laufs des Algorithmus ein Knoten oder eine Kante gelöscht 
+			 * oder hinzugefügt, so wird der Algorithmus beim nächsten Ausführungsschriff gestoppt.
+			 * @param evt GraphEvent, der über die Änderung im Graphen informiert
+			 */
+        	@Override
+			public void handleGraphEvent(GraphEvent<GTVertex, GTEdge> evt) {
+        		// Wenn der Algorithmus läuft --> stoppen!
+        		if ((algT != null) && algT.isAlive()) {
+        			stop = true;
+        			alg.showInfo(changeStopText, true);
+        		}
+        	}
+        });
+
 		// Verwendung des ersten Algorithmus in der Liste vorbereiten
 		prepareForAlgorithm(algChooser.getSelectedIndex());
 	}

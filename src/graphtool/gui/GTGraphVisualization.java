@@ -28,6 +28,8 @@ import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.algorithms.layout.StaticLayout;
+import edu.uci.ics.jung.graph.event.GraphEvent;
+import edu.uci.ics.jung.graph.event.GraphEventListener;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import graphtool.algorithm.GTVertexInfo;
@@ -35,6 +37,8 @@ import graphtool.algorithm.GTVertexInfoCollection;
 import graphtool.graph.GTEdge;
 import graphtool.graph.GTGraph;
 import graphtool.graph.GTVertex;
+import graphtool.gui.components.GTEdgeInputDialog;
+import graphtool.gui.components.GTVertexInputDialog;
 import graphtool.res.Messages;
 import graphtool.utils.ActionButton;
 
@@ -112,6 +116,36 @@ public class GTGraphVisualization extends JPanel {
     public GTGraphVisualization(GTGraph graph) {
         this.graph = graph;
         initialize();
+        graph.addGraphEventListener(new GraphEventListener<GTVertex, GTEdge>() {
+			/** 
+			 * Beim Löschen eines Knotens wird geprüft, ob es sich um den Start- oder
+			 * Zielknoten handelt. Wenn ja, wird das entsprechende Feld auf null gesetzt.
+			 * @param evt GraphEvent vom Typ GraphEvent.Vertex (beim Hinzufügen eines Knotens)
+			 */
+        	@Override
+			public void handleGraphEvent(GraphEvent<GTVertex, GTEdge> evt) {
+				switch(evt.getType()) {
+				// Wenn ein Knoten hinzugefügt wird, handelt es sich beim übergebenen Ereignis
+				// um einen GraphEvent.Vertex (Subklasse von GraphEvent), 
+				// in dem eine Referenz auf den neu erzeugten Knoten zu finden ist. 
+				// Dafür wird ein Eigenschaftendialog angezeigt.
+				case VERTEX_REMOVED:
+					GTVertex vertex = ((GraphEvent.Vertex<GTVertex,GTEdge>)evt).getVertex();
+					if (vertex == startVertex) {
+						// Der Startknoten wurde gerade gelöscht. Eigenschaft auf null setzen.
+						startVertex = null;
+					}
+					else if (vertex == targetVertex) {
+						// Der Zielknoten wurde gerade gelöscht. Eigenschaft auf null setzen.
+						targetVertex = null;
+					}
+					break;
+					// die übrigen Möglichkeiten spielen hier keine Rolle.
+					default:
+						break;
+				}
+        	}
+        });
     }
     
     /**
